@@ -1,0 +1,2 @@
+# magnetars_list_path_file		output_path_file	data_path_folder	rap_(mos_pix)		rbackin_(mos_pix)		rbackout_mos_pix	
+./../configs/mag_folders_dec_4Uonly.coldat		./../results/darkhan_result_texp.coldat		./../simtar_partial		4.07		5.0875		7.1225

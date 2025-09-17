@@ -1,0 +1,11 @@
+plots/*
+prf/*
+results/*
+simtar_partial/*
+test_logs/*
+simpletest/*
+src/.env
+src/*~
+.DS_Store
+src/.DS_Store
+Configs/.DS_Store

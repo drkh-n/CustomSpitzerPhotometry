@@ -1,0 +1,2 @@
+# magnetars_list_path_file		intermediate_path_file	data_path_folder	flux_scale_factors			rap_(mos_pix)	rbackin_(mos_pix)		rbackout_mos_pix	spacing		prf_path	result_path_file	channels	test_path_file
+./../mag_info/mag_1e2259.coldat		./../results/intermed/result_1e2259.coldat		./../simtar_partial		[1.,5.,10.,20.,30.]		4.07	5.0875		7.1225		5.	./../prf	./../results/result_1e2259_py.coldat		[1]		./../test_logs/test_1e2259.coldat
