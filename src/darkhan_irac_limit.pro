@@ -5,8 +5,8 @@
 ;-----------------------------------------------------------------
 
 pro irac_limit, data_path, imname, ra_decimaldeg, dec_decimaldeg, channel, factors, $
-                rap, rbackin, rbackout, spacing, prf_path, unit, test_unit, bgnd_factor, $
-                PHOT=phot, PAUSE=pause, NORM=norm, VERBOSE=verbose, TEST=test
+                rap, rbackin, rbackout, spacing, prf_path, unit, test_unit, $
+                PHOT=phot, PAUSE=pause, VERBOSE=verbose, TEST=test
 
   if N_ELEMENTS(norm) EQ 0 then norm = 0
 
@@ -47,17 +47,17 @@ pro irac_limit, data_path, imname, ra_decimaldeg, dec_decimaldeg, channel, facto
   ;=====WINDOW PARAMETERS=====
   IF keyword_set(verbose) THEN BEGIN
      WINDOW, 0, XSIZE=900, YSIZE=800
-     !X.MARGIN = [10, 10]       ; Left and right margins
-     !Y.MARGIN = [-1, 1]
+     ;!X.MARGIN = [10, 10]       ; Left and right margins
+     ;!Y.MARGIN = [-1, 1]
   ENDIF
   
   ;=====MAIN PROCEDURE=====
   FOR kk=0, n_elements(factors)-1 DO BEGIN
      
      IF keyword_set(verbose) THEN BEGIN
-        ps_filename = './../plots/'+imname+'_factor'+STRTRIM(factors[kk],2)+'.ps'
-        SET_PLOT, 'PS'
-        DEVICE, FILENAME=ps_filename, /COLOR, /PORTRAIT
+     ;   ps_filename = './../plots/'+imname+'_factor'+STRTRIM(factors[kk],2)+'.ps'
+     ;   SET_PLOT, 'PS'
+     ;   DEVICE, FILENAME=ps_filename, /COLOR, /PORTRAIT
         !P.multi = [0,3,3]
      ENDIF
      
@@ -81,7 +81,7 @@ pro irac_limit, data_path, imname, ra_decimaldeg, dec_decimaldeg, channel, facto
            ENDIF
 
            ;=====PLACING PRF/PSF=====
-           place_prf, im, channel, x_pos, y_pos, x_pos-fix(x_pos), y_pos-fix(y_pos), psf, factor, imout, /verbose
+           place_prf, im, channel, x_pos, y_pos, x_pos-fix(x_pos), y_pos-fix(y_pos), psf, factor, imout
            
            ;=====PLOTTING=====
            IF keyword_set(verbose) THEN BEGIN
@@ -103,7 +103,7 @@ pro irac_limit, data_path, imname, ra_decimaldeg, dec_decimaldeg, channel, facto
            ;=====PHOTOMETRY=====
            IF keyword_set(phot) THEN BEGIN
               circapphot, imout, x_pos, y_pos, rap, tot, imag, 1., npix, pixsig, $
-                          magerr, rbackin=rbackout, bgndwidth=rbackout-rbackin, sigma=sigma
+                          magerr, rbackin=rbackin, bgndwidth=rbackout-rbackin, sigma=sigma
               result = {name:imname,ra:ra_decimaldeg,dec:dec_decimaldeg,ch:channel, $
                         xpos:x_pos,ypos:y_pos,factor:factor, $
                         phot:8.47*tot*apcor[channel-1], sigma:8.47*apcor[channel-1]*sigma}
@@ -111,7 +111,6 @@ pro irac_limit, data_path, imname, ra_decimaldeg, dec_decimaldeg, channel, facto
                    result.ypos, result.factor, result.phot, result.sigma, $
                    FORMAT='(a-12, 2(f12.6), i6, 2(f12.6), i8, 2(f16.6))'
            ENDIF
-        
       ENDFOR
      ENDFOR
      
@@ -119,8 +118,8 @@ pro irac_limit, data_path, imname, ra_decimaldeg, dec_decimaldeg, channel, facto
         !P.multi = 0
            
         XYOUTS, 0.5, -0.9, imname+' PSF Scale Factor=' + STRTRIM(factor,2), /NORMAL, ALIGN=0.5, CHARSIZE=1.5
-        DEVICE, /CLOSE
-        SET_PLOT, 'X'
+        ;DEVICE, /CLOSE
+        ;SET_PLOT, 'X'
      ENDIF
      
      IF keyword_set(pause) THEN BEGIN

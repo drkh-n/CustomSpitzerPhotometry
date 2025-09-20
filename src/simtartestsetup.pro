@@ -24,6 +24,7 @@ pro simtar_test_setup
   print, 'Estimated noise σ = ', sig
 
   ;--- Create simple simulated image with Gaussian noise
+  seed = 42
   simpleim = randomn(seed, sz[1], sz[2]) * sig
 
   prfim = fltarr(sz[1], sz[2])
@@ -32,15 +33,15 @@ pro simtar_test_setup
   ;F_4u01= 5 (uJy)
   ;prf= 3.75407e-05
   ;scale_factor = F_4u01 / prf = 5 / prf
-  F_4u01 = 5.
+  F_4u01 = 10.
   norm_prf = prf / total(prf)
   prfn = norm_prf
   
   ; Place PRF at target coordinates
-  place_prf, prfim, 1, 340, 340, 0, 0, prf, F_4u01, imout, /verbose 
+  place_prf, simpleim, 1, xc, yc, 0, 0, prf, F_4u01, imout, /verbose 
 
-  tot  = total(imout)
-  print, 'Total flux = ', tot
+  tot  = total(imout[xc-25:xc+25,yc-26:yc+26])
+  print, 'Total flux at given position = ', tot
 
   ;------------------------------------------------------------
   ; Save simulated image
@@ -50,7 +51,7 @@ pro simtar_test_setup
   ;------------------------------------------------------------
   ; Perform circular aperture photometry
   ;------------------------------------------------------------
-  circapphot, imout, 340, 340, 25.0, phot, imag, 1.0, npix, pixsig, magerr, $
+  circapphot, imout, xc, yc, 25.0, phot, imag, 1.0, npix, pixsig, magerr, $
               rbackin=35., bgndwidth=10., sigma=sigma
 
   print, 'Aperture photometry results:'

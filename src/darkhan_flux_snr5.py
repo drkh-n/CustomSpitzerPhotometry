@@ -4,9 +4,12 @@ import pandas as pd
 from scipy.interpolate import interp1d
 from scipy.optimize import root_scalar
 import matplotlib.pyplot as plt
+from scipy import stats
+
 
 # Per-channel no_bgnd values (µJy)
-NO_BGND_PER_CH = [3.29734, 3.00630, 2.73935, 2.46965]
+# NO_BGND_PER_CH = [3.29734*8.47*1.125, 3.00630, 2.73935, 2.46965]
+NO_BGND_PER_CH = [8.47*1.125]
 WINDOW_SIZE = 9
 
 def std(data, window_size):
@@ -39,7 +42,7 @@ def process_all_magnetars(infile, outfile, plot=False):
                 row_result.append(np.nan)
                 continue
 
-            base_factor = 1000.0
+            base_factor = 1.0
             base_no_bgnd = NO_BGND_PER_CH[ch - 1]
             no_bgnd = (factors / base_factor) * base_no_bgnd
             delta = phot_values - no_bgnd
@@ -48,41 +51,90 @@ def process_all_magnetars(infile, outfile, plot=False):
 
             x_data = no_bgnd[::WINDOW_SIZE]
             y_data = snrs
+            #start new code
+            slope, intercept, r_value, p_value, std_err = stats.linregress(x_data, y_data)
 
-            try:
-                interp_func = interp1d(x_data, y_data, kind='cubic', fill_value='extrapolate')
+            y_target = 5.0
+            flux_at_snr5 = (y_target - intercept) / slope
 
-                def find_root(x):
-                    return interp_func(x) - 5.0
+            # Estimate residual standard deviation
+            y_fit = slope * x_data + intercept
+            residuals = y_data - y_fit
+            sigma = np.std(residuals)  # estimated error per point
 
-                if np.any((y_data - 5.0) < 0) and np.any((y_data - 5.0) > 0):
-                    # Safe interpolation
-                    result = root_scalar(find_root, bracket=[x_data.min(), x_data.max()])
-                    flux_at_snr5 = result.root
-                    print(f"{name} ch{ch}: Flux at SNR=5 = {flux_at_snr5:.4f}")
-                else:
-                    # Extrapolation
-                    result = root_scalar(find_root, bracket=[x_data.min(), x_data.max() * 2], method='brentq')
-                    flux_at_snr5 = result.root
-                    print(f"{name} ch{ch}: ⚠️ Extrapolated flux at SNR=5 = {flux_at_snr5:.4f}")
+            # Dense x for plotting the fitted line
+            x_dense = np.linspace(x_data.min(), max(x_data.max(), flux_at_snr5 * 1.1), 500)
+            y_dense = slope * x_dense + intercept
 
-                if plot:
-                    x_dense = np.linspace(x_data.min(), max(x_data.max(), flux_at_snr5 * 1.1), 500)
-                    plt.figure()
-                    plt.plot(x_data, y_data, 'o', label='SNR Data')
-                    plt.plot(x_dense, interp_func(x_dense), '-', label='Interpolation')
-                    plt.axhline(5, color='red', linestyle='--', label='SNR=5')
-                    plt.axvline(flux_at_snr5, color='green', linestyle='--', label=f'Flux@SNR=5 = {flux_at_snr5:.2f}')
-                    plt.title(f'{name} Channel {ch}')
-                    plt.xlabel('Flux (µJy)')
-                    plt.ylabel('SNR')
-                    plt.legend()
-                    plt.grid(True)
-                    plt.show()
+            # Plot
+            plt.figure(figsize=(7,5))
+            plt.errorbar(x_data, y_data, yerr=sigma, fmt='o', label='Data (±σ)', capsize=4)
+            plt.plot(x_dense, y_dense, '-', label=f'Fit: y = {slope:.4f}x + {intercept:.4f}')
+            plt.axhline(y_target, color='red', linestyle='--', label=f'SNR={y_target}')
+            plt.axvline(flux_at_snr5, color='green', linestyle='--',
+                        label=f'Flux@SNR=5 = {flux_at_snr5:.2f}')
+            plt.title("Linear Fit to SNR Data with Error Bars")
+            plt.xlabel("Flux (µJy)")
+            plt.ylabel("SNR")
+            plt.legend()
+            plt.grid(True)
+            plt.show()
 
-            except Exception as e:
-                flux_at_snr5 = np.nan
-                print(f"{name} ch{ch}: ❌ Failed interpolation - {e}")
+            print(f"Slope = {slope:.6f} ± {std_err:.6f}")
+            print(f"Intercept = {intercept:.6f}")
+            print(f"x value when y=5.0 → {flux_at_snr5:.2f} µJy")
+            # plt.title(f'{name} Channel {ch}')
+            # plt.xlabel('Flux (µJy)')
+            # plt.ylabel('SNR')
+            # plt.grid(True)
+            # plt.plot(x_data, y_data, 'o')
+            # plt.show()
+            # return
+            # try:
+                # interp_func = interp1d(x_data, y_data, kind='cubic', fill_value='extrapolate')
+                #
+                # def find_root(x):
+                #     return interp_func(x) - 5.0
+                #
+                # if np.any((y_data - 5.0) < 0) and np.any((y_data - 5.0) > 0):
+                #     # Safe interpolation
+                #     result = root_scalar(find_root, bracket=[x_data.min(), x_data.max()])
+                #     flux_at_snr5 = result.root
+                #     print(f"{name} ch{ch}: Flux at SNR=5 = {flux_at_snr5:.4f}")
+                # else:
+                #     # Extrapolation
+                #     result = root_scalar(find_root, bracket=[x_data.min(), x_data.max() * 2], method='brentq')
+                #     flux_at_snr5 = result.root
+                #     print(f"{name} ch{ch}: ⚠️ Extrapolated flux at SNR=5 = {flux_at_snr5:.4f}")
+                # Fit linear regression (degree 1 polynomial)
+            #     coeffs = np.polyfit(x_data, y_data, 1)  # coeffs = [slope, intercept]
+            #     slope, intercept = coeffs
+            #
+            #     print(f"Slope: {slope}, Intercept: {intercept}")
+            #
+            #     # Solve for x when y = 5.0
+            #     y_target = 5.0
+            #     x_target = (y_target - intercept) / slope
+            #     flux_at_snr5 = x_target
+            #     print(f"x value when y = {y_target}: {x_target}")
+            #     if plot:
+            #         x_dense = np.linspace(x_data.min(), max(x_data.max(), flux_at_snr5 * 1.1), 500)
+            #         y_dense = slope * x_dense + intercept
+            #         plt.figure()
+            #         plt.plot(x_data, y_data, 'o', label='SNR Data')
+            #         plt.plot(x_dense, y_dense, '-', label='Interpolation')
+            #         plt.axhline(5, color='red', linestyle='--', label='SNR=5')
+            #         plt.axvline(flux_at_snr5, color='green', linestyle='--', label=f'Flux@SNR=5 = {flux_at_snr5:.2f}')
+            #         plt.title(f'{name} Channel {ch}')
+            #         plt.xlabel('Flux (µJy)')
+            #         plt.ylabel('SNR')
+            #         plt.legend()
+            #         plt.grid(True)
+            #         plt.show()
+            #
+            # except Exception as e:
+            #     flux_at_snr5 = np.nan
+            #     print(f"{name} ch{ch}: ❌ Failed interpolation - {e}")
 
             row_result.append(flux_at_snr5)
 

@@ -34,15 +34,14 @@ pro run_irac_limit, config
   readcoldat, input_path, data, comchar='#'
   
   nrows = n_elements(data) / 3
-  bgnd = [1./10.]
   ;======================
 
   ;=====intermediate results=====
   openw, unit, output_path, /get_lun
-  printf, unit, '# name    ra    dec    channel    x_pos    y_pos    flux_scale_factor    flux_(µJy)    sigma_(µJy)'
+  printf, unit, '# name    ra    dec    channel    x_pos    y_pos    expected_flux    phot_flux_(µJy)    phot_sigma_(µJy)'
 
   openw, test_unit, test_path, /get_lun
-  printf, test_unit, '# name    ra    dec    channel    x_pos    y_pos    flux_scale_factor    flux_(µJy)    sigma_(µJy)'
+  printf, test_unit, '# name    ra    dec    channel    x_pos    y_pos    expected_flux    phot_flux_(µJy)    phot_sigma_(µJy)    total    sig'
   
   FOR ii=0, nrows-1 DO BEGIN
 
@@ -62,8 +61,8 @@ pro run_irac_limit, config
         
         FOR bgnd_factor=0,0 DO BEGIN
            irac_limit, data_path, mag_name, ra, dec, channels[jj], factors, $
-                       rap, rbackin, rbackout, spacing, prf_path, unit, test_unit, 10.*bgnd[bgnd_factor], $
-                       /norm, /verbose, /test
+                       rap, rbackin, rbackout, spacing, prf_path, unit, test_unit, $
+                       /phot, /test
         ENDFOR
         
         PRINT, 'Finished ' + mag_name + ' channel ' + channel

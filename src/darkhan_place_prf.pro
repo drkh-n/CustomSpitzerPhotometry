@@ -20,14 +20,13 @@ pro place_prf, im, channel, x0, y0, xoff_fracpix, yoff_fracpix, prf, scale_facto
   ;---------------------------------------------------------------
   ; Channel-specific PRF scaling factors
   ;---------------------------------------------------------------
-  CASE channel OF
-    1: p_prf = 1.221
-    2: p_prf = 1.213
-    3: p_prf = 1.222
-    4: p_prf = 1.220
-    ELSE: RETURN
+  CASE FIX(channel) OF
+     1: p_prf = 1.221
+     2: p_prf = 1.213
+     3: p_prf = 1.222
+     4: p_prf = 1.220
+     ELSE: RETURN
   ENDCASE
-
   ; Convert to relative scale
   p_prf    = p_prf / 100.0
   p_mosaic = 0.6
@@ -124,5 +123,4 @@ pro place_prf, im, channel, x0, y0, xoff_fracpix, yoff_fracpix, prf, scale_facto
 
   imout[x0-new_xsize/2:x0+new_xsize/2, $
         y0-new_ysize/2:y0+new_ysize/2] += prf_norm
-  stop
 end
