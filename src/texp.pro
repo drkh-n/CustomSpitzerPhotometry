@@ -85,7 +85,7 @@
 ;-----------------------------------------------------------------
 ;-----------------------------------------------------------------
 pro extract_texp, config_file
-    compile_opt idl2
+compile_opt idl2
 
     ; Read config.coldat using readcoldat
     readcoldat, config_file, config_data, comchar='#'

@@ -1,6 +1,7 @@
 pro test_image, im, imname, rap, rbackin, rbackout, apcor, ra_decimaldeg, dec_decimaldeg, $
                 x_pos, y_pos, sz, channel, factor, psf, test_unit, verbose=verbose
-  
+compile_opt IDL2
+
   print, '=====START TEST====='
   sig = stdev(im[x_pos-7:x_pos+7, y_pos-7:y_pos+7])
   

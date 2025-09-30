@@ -1,4 +1,6 @@
 function to_array, array
+  compile_opt IDL2
+
   clean_str = STRMID(array, 1, STRLEN(array)-2)
   parts = STRSPLIT(clean_str, ',', /EXTRACT)
   return, parts
@@ -11,6 +13,7 @@ end
 ;-----------------------------------------------------------------
 
 pro run_irac_limit, config
+  compile_opt IDL2
 
   ;=====configuration=====
   readcoldat, config, conf, comchar='#'
@@ -59,13 +62,13 @@ pro run_irac_limit, config
            CONTINUE
         ENDIF
         
-        FOR bgnd_factor=0,0 DO BEGIN
-           irac_limit, data_path, mag_name, ra, dec, channels[jj], factors, $
+        FOR kk=0, n_elements(factors)-1 DO BEGIN
+           irac_limit, data_path, mag_name, ra, dec, channels[jj], factors[kk], $
                        rap, rbackin, rbackout, spacing, prf_path, unit, test_unit, $
                        /phot, /test
         ENDFOR
         
-        PRINT, 'Finished ' + mag_name + ' channel ' + channel
+        PRINT, 'Finished ' + mag_name + ' channel ' + channels[jj]
      ENDFOR
 
      
@@ -81,7 +84,7 @@ pro run_irac_limit, config
 
   ;=======================
 
-  stop
+  ;stop
 
   ;=====flux at 5sigma=====
   result_path = conf[9,0]

@@ -42,7 +42,7 @@ pip install --upgrade pip -q
 pip install -r requirements.txt -q
 
 # Run your script
-python3 darkhan_flux_snr5.py -i "$1" -o "$2" --plot
+python3 flux_snr5.py -i "$1" -o "$2" --plot
 
 # Deactivate
 deactivate

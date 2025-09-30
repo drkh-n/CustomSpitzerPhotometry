@@ -1,4 +1,5 @@
 pro simtar_test_setup
+compile_opt IDL2
 
   ;------------------------------------------------------------
   ; Test A: Simulated Target Setup
