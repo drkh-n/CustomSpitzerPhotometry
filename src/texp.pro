@@ -6,78 +6,37 @@
 ;
 ;+
 ; NAME:
-;	EXTRACT_TEXP
+; EXTRACT_TEXP
 ;
 ; PURPOSE:
-;	This procedure extracts the local exposure time (`texp`) around the target 
-;	right ascension (RA) and declination (Dec) from FITS images. For each channel 
-;	(1 to 4), it finds the coadded mosaic FITS file, converts RA/Dec to pixel 
-;	coordinates, and computes the average value in a 5x5 pixel box centered on the 
-;	target position.
+; This here procedure extracts effective exposure time values from IRAC mosaic FITS files by measuring mean pixel values in background annuli around specified target positions.
 ;
 ; CATEGORY:
-;	Astronomy, Image Processing, Photometry
+; Astronomy, IRAC Data Analysis, Exposure Time Measurement
 ;
 ; CALLING SEQUENCE:
-;	EXTRACT_TEXP, Input_Coldat, Output_Coldat, Data_Path
+; EXTRACT_TEXP, Config_File
 ;
 ; INPUTS:
-;	Input_Coldat:  A string specifying the path to the input coldat file containing 
-;	               target names, RA, and Dec.
-;
-;	Output_Coldat: A string specifying the path where the output coldat with extracted 
-;	               exposure times will be written.
-;
-;	Data_Path:     A string representing the base directory where mosaici data folders 
-;	               are located.
-;
-; OPTIONAL INPUTS:
-;	None.
-;
-; KEYWORD PARAMETERS:
-;	None.
+; Config_File: The configuration file containing input/output paths and processing parameters including input coordinate list, output file, data directory, and annulus dimensions.
 ;
 ; OUTPUTS:
-;	This procedure writes a file (`Output_Coldat`) containing the name of each object 
-;	and its average exposure time in a 5x5 box around the target for channels 1 through 4.
-;
-; OPTIONAL OUTPUTS:
-;	None.
-;
-; COMMON BLOCKS:
-;	None.
-;
-; SIDE EFFECTS:
-;	- If a mosaic FITS file is not found for a given channel, a NaN is stored.
-;	- Overwrites the output file if it already exists.
-;
-; RESTRICTIONS:
-;	- Assumes input coldat contains a 3-row structure: folder names, RA, and Dec.
-;	- Requires `readcoldat`, `adxy`, and `READFITS` procedures to be available.
+; The procedure writes an output file containing effective exposure times for each target across all four IRAC channels.
 ;
 ; PROCEDURE:
-;	1. Reads the coldat table and initializes a NaN array for storing exposure times.
-;	2. Iterates over each source and channel.
-;	3. Searches for the FITS file in the expected path.
-;	4. Converts RA/Dec to (x, y) pixel coordinates in the FITS image.
-;	5. Extracts a 5x5 pixel box around the source position.
-;	6. Computes the mean value of the box and stores it.
-;	7. Writes all results to the output coldat file.
+; Reads target coordinates and processes each through all IRAC channels, extracts background annulus measurements from mosaic FITS files, and calculates mean values representing effective exposure times.
 ;
 ; EXAMPLE:
-;	Extract exposure times for a set of sources and save to a file:
+; Extract exposure times for a list of magnetar positions:
 ;
-;		EXTRACT_TEXP, 'input_coldat.coldat', 'output_texp.coldat', '/data/irac/'
+; EXTRACT_TEXP, 'config_texp.coldat'
 ;
 ; MODIFICATION HISTORY:
-;	Written by: Darkhan Nurzhakyp, 2025 July 7
-;	Initial version.
+; 	Written by:	Darkhan Nurzhakyp 2025 September 30
+;	September,2025	Any additional mods get described here.  Remember to
+;			change the stuff above if you add a new keyword or
+;			something!
 ;-
-
-;-----------------------------------------------------------------
-;               Mini-Routines (main routine comes last)
-;-----------------------------------------------------------------
-
 
 ;-----------------------------------------------------------------
 ;-----------------------------------------------------------------

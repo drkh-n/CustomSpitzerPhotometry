@@ -1,3 +1,46 @@
+# ; Copyright (c) 2000-2050, Banzai Astrophysics.  All rights reserved.
+# ;	Unauthorized reproduction prohibited without touting Darkhan's
+# ;	name. Please help me live forever by continuing the tradition
+# ;	of honoring science nerds of the past by putting their name in
+# ;	your code that uses theirs. 
+# ;
+# ;+
+# ; NAME:
+# ; FLUX_SNR5
+# ;
+# ; PURPOSE:
+# ; This here Python script calculates the 5-sigma sensitivity limits for IRAC data by performing linear regression on signal-to-noise ratio versus flux measurements across multiple channels.
+# ;
+# ; CATEGORY:
+# ; Astronomy, Sensitivity Analysis, IRAC Data Processing
+# ;
+# ; CALLING SEQUENCE:
+# ; python flux_snr5.py -i input_file -o output_file [--plot]
+# ;
+# ; INPUTS:
+# ; input_file: The input data file containing photometry results with columns for source name, channel, flux factors, photometry measurements, and uncertainties.
+# ;
+# ; OUTPUTS:
+# ; output_file: The output file containing 5-sigma sensitivity limits for each source across all IRAC channels.
+# ;
+# ; KEYWORD PARAMETERS:
+# ; --plot: Set this flag to generate diagnostic plots showing the linear fit and 5-sigma flux determination for each channel.
+# ;
+# ; PROCEDURE:
+# ; The script reads photometry data, calculates signal-to-noise ratios, performs linear regression of SNR versus flux, and determines the flux value corresponding to SNR=5 for each source and channel.
+# ;
+# ; EXAMPLE:
+# ; Calculate 5-sigma sensitivity limits and generate plots:
+# ;
+# ; python flux_snr5.py -i result.coldat -o snr5_result.coldat --plot
+# ;
+# ; MODIFICATION HISTORY:
+# ; 	Written by:	Darkhan Nurzhakyp 2025 September 30
+# ;	September,2025	Any additional mods get described here.  Remember to
+# ;			change the stuff above if you add a new keyword or
+# ;			something!
+# ;-
+
 import argparse
 import numpy as np
 import pandas as pd
@@ -12,12 +55,22 @@ from scipy import stats
 NO_BGND_PER_CH = [8.47*1.125]
 WINDOW_SIZE = 9
 
+# ;-----------------------------------------------------------------
+# ;               Mini-Routines (main routine comes last)
+# ;-----------------------------------------------------------------
+
 def std(data, window_size):
     stds = []
     for i in range(0, len(data), window_size):
         window = data[i : i + window_size]
         stds.append(np.std(window))
     return np.array(stds)
+
+# ;-----------------------------------------------------------------
+# ;-----------------------------------------------------------------
+# ;                             Main Routine
+# ;-----------------------------------------------------------------
+# ;-----------------------------------------------------------------
 
 def process_all_magnetars(infile, outfile, plot=False):
     df = pd.read_csv(infile, comment='#', sep='\s+',
@@ -83,58 +136,6 @@ def process_all_magnetars(infile, outfile, plot=False):
             print(f"Slope = {slope:.6f} ± {std_err:.6f}")
             print(f"Intercept = {intercept:.6f}")
             print(f"x value when y=5.0 → {flux_at_snr5:.2f} µJy")
-            # plt.title(f'{name} Channel {ch}')
-            # plt.xlabel('Flux (µJy)')
-            # plt.ylabel('SNR')
-            # plt.grid(True)
-            # plt.plot(x_data, y_data, 'o')
-            # plt.show()
-            # return
-            # try:
-                # interp_func = interp1d(x_data, y_data, kind='cubic', fill_value='extrapolate')
-                #
-                # def find_root(x):
-                #     return interp_func(x) - 5.0
-                #
-                # if np.any((y_data - 5.0) < 0) and np.any((y_data - 5.0) > 0):
-                #     # Safe interpolation
-                #     result = root_scalar(find_root, bracket=[x_data.min(), x_data.max()])
-                #     flux_at_snr5 = result.root
-                #     print(f"{name} ch{ch}: Flux at SNR=5 = {flux_at_snr5:.4f}")
-                # else:
-                #     # Extrapolation
-                #     result = root_scalar(find_root, bracket=[x_data.min(), x_data.max() * 2], method='brentq')
-                #     flux_at_snr5 = result.root
-                #     print(f"{name} ch{ch}: ⚠️ Extrapolated flux at SNR=5 = {flux_at_snr5:.4f}")
-                # Fit linear regression (degree 1 polynomial)
-            #     coeffs = np.polyfit(x_data, y_data, 1)  # coeffs = [slope, intercept]
-            #     slope, intercept = coeffs
-            #
-            #     print(f"Slope: {slope}, Intercept: {intercept}")
-            #
-            #     # Solve for x when y = 5.0
-            #     y_target = 5.0
-            #     x_target = (y_target - intercept) / slope
-            #     flux_at_snr5 = x_target
-            #     print(f"x value when y = {y_target}: {x_target}")
-            #     if plot:
-            #         x_dense = np.linspace(x_data.min(), max(x_data.max(), flux_at_snr5 * 1.1), 500)
-            #         y_dense = slope * x_dense + intercept
-            #         plt.figure()
-            #         plt.plot(x_data, y_data, 'o', label='SNR Data')
-            #         plt.plot(x_dense, y_dense, '-', label='Interpolation')
-            #         plt.axhline(5, color='red', linestyle='--', label='SNR=5')
-            #         plt.axvline(flux_at_snr5, color='green', linestyle='--', label=f'Flux@SNR=5 = {flux_at_snr5:.2f}')
-            #         plt.title(f'{name} Channel {ch}')
-            #         plt.xlabel('Flux (µJy)')
-            #         plt.ylabel('SNR')
-            #         plt.legend()
-            #         plt.grid(True)
-            #         plt.show()
-            #
-            # except Exception as e:
-            #     flux_at_snr5 = np.nan
-            #     print(f"{name} ch{ch}: ❌ Failed interpolation - {e}")
 
             row_result.append(flux_at_snr5)
 
@@ -149,6 +150,7 @@ def main():
     parser.add_argument('-o', '--output', type=str, default="./../results/snr5_result.coldat", help="Output coldat result")
     parser.add_argument('--plot', action='store_true', help="Plot SNR vs Flux curve for each channel")
     args = parser.parse_args()
+    
     process_all_magnetars(args.input, args.output, plot=args.plot)
 
 if __name__ == "__main__":

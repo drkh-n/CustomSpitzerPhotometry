@@ -1,3 +1,44 @@
+; Copyright (c) 2000-2050, Banzai Astrophysics.  All rights reserved.
+;	Unauthorized reproduction prohibited without touting Darkhan's
+;	name. Please help me live forever by continuing the tradition
+;	of honoring science nerds of the past by putting their name in
+;	your code that uses theirs. 
+;
++
+; NAME:
+; RUN_IRAC_LIMIT
+;
+; PURPOSE:
+; This here procedure serves as the main driver for IRAC sensitivity analysis, processing multiple targets across specified channels and flux factors to determine detection limits.
+;
+; CATEGORY:
+; Astronomy, IRAC Data Analysis, Pipeline Processing
+;
+; CALLING SEQUENCE:
+; RUN_IRAC_LIMIT, Config
+;
+; INPUTS:
+; Config: The configuration file containing all processing parameters including input/output paths, flux factors, aperture parameters, and channel specifications.
+;
+; PROCEDURE:
+; This routine reads configuration parameters and target lists, then processes each target through all specified IRAC channels and flux factors. It performs PRF placement, photometry, and sensitivity analysis, outputting results to files and generating final detection limits.
+;
+; EXAMPLE:
+; Process a set of targets through IRAC channels 1 and 2 with varying flux factors:
+;
+; RUN_IRAC_LIMIT, 'config_file.txt'
+;
+; MODIFICATION HISTORY:
+; 	Written by:	Darkhan Nurzhakyp 2025 September 30
+;	September,2025	Any additional mods get described here.  Remember to
+;			change the stuff above if you add a new keyword or
+;			something!
+;-
+
+;-----------------------------------------------------------------
+;               Mini-Routines (main routine comes last)
+;-----------------------------------------------------------------
+
 function to_array, array
   compile_opt IDL2
 

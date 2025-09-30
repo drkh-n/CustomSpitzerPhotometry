@@ -1,6 +1,55 @@
-;=================================================================
-; Helper Functions
-;=================================================================
+; Copyright (c) 2000-2050, Banzai Astrophysics.  All rights reserved.
+;	Unauthorized reproduction prohibited without touting Darkhan's
+;	name. Please help me live forever by continuing the tradition
+;	of honoring science nerds of the past by putting their name in
+;	your code that uses theirs. 
+;
+;+
+; NAME:
+; PLACE_PRF
+;
+; PURPOSE:
+; This here procedure places a Point Response Function (PRF) into an image at a specified location with sub-pixel shifting and channel-specific scaling. The PRF is trimmed, shifted, scaled, normalized, and then added to the output image.
+;
+; CATEGORY:
+; Image Processing, Astronomy
+;
+; CALLING SEQUENCE:
+; PLACE_PRF, Im, Channel, X0, Y0, Xoff_Fracpix, Yoff_Fracpix, Prf, norm_factor, Imout
+;
+; INPUTS:
+; Im: The input image array into which the PRF will be placed.
+;
+; Channel: The instrument channel (1, 2, 3, or 4) used to determine scaling factors.
+;
+; X0: The x-coordinate (column) in the image where the PRF center is to be placed.
+;
+; Y0: The y-coordinate (row) in the image where the PRF center is to be placed.
+;
+; Xoff_Fracpix: The sub-pixel offset in the x-direction (in fraction of a pixel) to shift the PRF.
+;
+; Yoff_Fracpix: The sub-pixel offset in the y-direction (in fraction of a pixel) to shift the PRF.
+;
+; Prf: The input Point Response Function (PRF) array to be placed into the image.
+;
+; norm_factor: The factor by which the PRF is normalized before being added to the image.
+;
+; OUTPUTS:
+; Imout: The output image with the PRF added at the specified location.
+;
+; KEYWORD PARAMETERS:
+; VERBOSE: Set this keyword to print diagnostic information during execution. The default is to not print verbose output.
+;
+; MODIFICATION HISTORY:
+; 	Written by:	Darkhan Nurzhakyp 2025 September 30
+;	September,2025	Any additional mods get described here.  Remember to
+;			change the stuff above if you add a new keyword or
+;			something!
+;-
+
+;-----------------------------------------------------------------
+;               Mini-Routines (main routine comes last)
+;-----------------------------------------------------------------
 
 function get_channel_scaling_factors, channel
 compile_opt IDL2
@@ -77,7 +126,7 @@ compile_opt IDL2
   return, prf_shifted
 end
 
-function scale_and_normalize_prf, prf_shifted, new_xsize, new_ysize, scale_factor, verbose=verbose
+function scale_and_normalize_prf, prf_shifted, new_xsize, new_ysize, norm_factor, verbose=verbose
 compile_opt IDL2
   prf_scaled = CONGRID(prf_shifted, new_xsize, new_ysize, /interp)
   
@@ -91,29 +140,18 @@ compile_opt IDL2
 
   ; Normalize PRF
   prf_norm = prf_scaled / total(prf_scaled)
-  prf_norm = prf_norm * scale_factor
+  prf_norm = prf_norm * norm_factor
 
   return, prf_norm
 end
 
-;=================================================================
-;  Main Routine: place_prf
 ;-----------------------------------------------------------------
-;  Inserts a Point Response Function (PRF) into an image at the
-;  specified coordinates with fractional pixel offsets.
-;
-;  Parameters:
-;    im            - Input image
-;    channel       - Channel number (1–4)
-;    x0, y0        - Target coordinates (pixels)
-;    xoff_fracpix  - X fractional pixel offset
-;    yoff_fracpix  - Y fractional pixel offset
-;    prf           - Input PRF image
-;    imout         - Output image with PRF inserted
-;    /VERBOSE      - Optional keyword for diagnostic printing
-;=================================================================
+;-----------------------------------------------------------------
+;                             Main Routine
+;-----------------------------------------------------------------
+;-----------------------------------------------------------------
 
-pro place_prf, im, channel, x0, y0, xoff_fracpix, yoff_fracpix, prf, scale_factor, imout, VERBOSE=verbose
+pro place_prf, im, channel, x0, y0, xoff_fracpix, yoff_fracpix, prf, norm_factor, imout, VERBOSE=verbose
 compile_opt IDL2
 
   if keyword_set(verbose) then print, "=====PLACE_PRF====="
@@ -137,7 +175,7 @@ compile_opt IDL2
   prf_shifted = shift_prf(prf_trimmed, xoff_fracpix, yoff_fracpix, s)
 
   ; Scale and normalize PRF
-  prf_norm = scale_and_normalize_prf(prf_shifted, new_xsize, new_ysize, scale_factor, verbose=verbose)
+  prf_norm = scale_and_normalize_prf(prf_shifted, new_xsize, new_ysize, norm_factor, verbose=verbose)
 
   ; Insert scaled PRF into output image
   imout = im

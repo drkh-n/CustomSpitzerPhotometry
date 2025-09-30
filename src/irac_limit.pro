@@ -1,3 +1,65 @@
+; Copyright (c) 2000-2050, Banzai Astrophysics.  All rights reserved.
+;	Unauthorized reproduction prohibited without touting Darkhan's
+;	name. Please help me live forever by continuing the tradition
+;	of honoring science nerds of the past by putting their name in
+;	your code that uses theirs. 
+;
+;+
+; NAME:
+; IRAC_LIMIT
+;
+; PURPOSE:
+; This here procedure performs point source sensitivity analysis for IRAC data by placing scaled PRF/PSF models at multiple positions around a target coordinate, performing aperture photometry, and generating diagnostic plots.
+;
+; CATEGORY:
+; Astronomy, Photometry, IRAC Data Analysis
+;
+; CALLING SEQUENCE:
+; IRAC_LIMIT, Data_Path, Imname, Ra_Decimaldeg, Dec_Decimaldeg, Channel, Factor, Rap, Rbackin, Rbackout, Spacing, Prf_Path, Unit, Test_Unit
+;
+; INPUTS:
+; Data_Path: The base directory path containing the IRAC mosaic data.
+;
+; Imname: The name identifier for the specific image/mosaic being analyzed.
+;
+; Ra_Decimaldeg: The right ascension of the target position in decimal degrees.
+;
+; Dec_Decimaldeg: The declination of the target position in decimal degrees.
+;
+; Channel: The IRAC channel number (1-4) being analyzed.
+;
+; Factor: The scaling factor to apply to the PRF when placing it in the image.
+;
+; Rap: The aperture radius in arcseconds for photometry measurements.
+;
+; Rbackin: The inner radius of the background annulus in arcseconds.
+;
+; Rbackout: The outer radius of the background annulus in arcseconds.
+;
+; Spacing: The spacing between test positions in pixels.
+;
+; Prf_Path: The directory path containing the PRF/PSF files.
+;
+; Unit: The file unit for outputting photometry results.
+;
+; Test_Unit: The file unit for test image output.
+;
+; KEYWORD PARAMETERS:
+; PHOT: Set this keyword to perform aperture photometry on the placed PRFs and output results. The default is to not perform photometry.
+;
+; PAUSE: Set this keyword to pause execution after processing for inspection. The default is to not pause.
+;
+; VERBOSE: Set this keyword to display diagnostic information and generate plots. The default is to not display verbose output.
+;
+; TEST: Set this keyword to generate test images for validation. The default is to not generate test images.
+;
+; MODIFICATION HISTORY:
+; 	Written by:	Darkhan Nurzhakyp 2025 September 30
+;	September,2025	Any additional mods get described here.  Remember to
+;			change the stuff above if you add a new keyword or
+;			something!
+;-
+
 ;-----------------------------------------------------------------
 ;-----------------------------------------------------------------
 ;                             Main Routine
