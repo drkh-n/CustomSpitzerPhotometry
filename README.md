@@ -1,6 +1,6 @@
 ## Spitzer Photometry Program
 
-Estimate 5σ flux sensitivity for Spitzer/IRAC observations of magnetars. The pipeline places synthetic PRFs, performs circular aperture photometry (IDL), aggregates intermediate measurements into `.coldat`, and fits SNR–flux to derive the flux at SNR=5 (Python).
+Estimate 5σ flux (uJy) sensitivity for Spitzer/IRAC observations of magnetars. The pipeline places synthetic PRFs, performs circular aperture photometry (IDL), aggregates intermediate measurements into `.coldat`, and fits SNR–flux to derive the flux at SNR=5 (Python).
 
 ### Repository structure
 - `configs/` — example configuration tables (`.coldat`) for IDL procedures
@@ -16,6 +16,7 @@ Estimate 5σ flux sensitivity for Spitzer/IRAC observations of magnetars. The pi
   - `readcoldat`, `irac_limit`, `adxy`, `readfits`, `get_annulus` (by request), `circapphot` (by request) must be on `!PATH`
 - Python 3.7+
   - Install Python deps via `src/requirements.txt` (NumPy, SciPy, Pandas, Matplotlib)
+- Download [Cryogenic IRAC Core PRF images](https://irsa.ipac.caltech.edu/data/SPITZER/docs/irac/calibrationfiles/psfprf/) for each channel
 
 ### Quick start: Python-only (compute SNR=5 from an existing coldat)
 If you already have an intermediate photometry table (see format below), run:
@@ -69,7 +70,7 @@ python3 flux_snr5.py -i ../results/intermed/intermed_result.coldat -o ../results
 deactivate
 ```
 ### Example output
-![Example](docs/igure_1.png)
+![Example](docs/Figure_1.png)
 
 ### File formats
 - Intermediate photometry (`.coldat`) — produced by `run_irac_limit` and consumed by `flux_snr5.py`. Space-separated with header like:
